@@ -1,0 +1,35 @@
+{
+  "canisters": {
+    "openD_backend": {
+      "main": "src/openD_backend/main.mo",
+      "type": "motoko"
+    },
+    "openD_frontend": {
+      "dependencies": [
+        "openD_backend"
+      ],
+      "frontend": {
+        "entrypoint": "src/openD_frontend/src/index.html"
+      },
+      "source": [
+        "src/openD_frontend/assets",
+        "dist/openD_frontend/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "dfx": "0.11.2",
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}
