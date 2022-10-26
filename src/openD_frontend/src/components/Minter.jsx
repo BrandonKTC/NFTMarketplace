@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Principal } from "@dfinity/principal";
+import { redirect } from "react-router-dom";
 import { openD_backend } from "../../../declarations/openD_backend";
 import Item from "./Item";
+import Loader from "./Loader";
 
 function Minter() {
 	const { register, handleSubmit } = useForm();
@@ -25,12 +26,7 @@ function Minter() {
 	if (nftPrincipal == "") {
 		return (
 			<div className="minter-container">
-				<div hidden={loaderHidden} className="lds-ellipsis">
-					<div></div>
-					<div></div>
-					<div></div>
-					<div></div>
-				</div>
+				<Loader hidden={loaderHidden} />
 				<h3 className="makeStyles-title-99 Typography-h3 form-Typography-gutterBottom">
 					Create NFT
 				</h3>
