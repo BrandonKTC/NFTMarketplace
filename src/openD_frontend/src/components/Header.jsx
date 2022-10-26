@@ -35,14 +35,14 @@ function Header() {
 				<Route exact path="/">
 					<img className="bottom-space" src={homeImage} />
 				</Route>
-				<Route exact path="/discover">
+				<Route path="/discover">
 					<h1>Discover</h1>
 				</Route>
-				<Route exact path="/minter">
+				<Route path="/minter">
 					<Minter />
 				</Route>
-				<Route exact path="/collection">
-					<Gallery />
+				<Route path="/collection">
+					<Gallery title="my NFTs" />
 				</Route>
 			</Switch>
 		</BrowserRouter>
