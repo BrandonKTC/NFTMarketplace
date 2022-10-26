@@ -1,11 +1,25 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import logo from "../../assets/logo.png";
 import homeImage from "../../assets/home-img.png";
 import { BrowserRouter, Link, Switch, Route } from "react-router-dom";
 import Gallery from "./Gallery";
+import { openD_backend } from "../../../declarations/openD_backend";
 import Minter from "./Minter";
+import CURRENT_USER_ID from "../index";
 
 function Header() {
+	const [userOwnedGallery, setOwnedGallery] = useState();
+
+	async function getNFTs() {
+		const userNFTIds = await openD_backend.getOwnedNFTs(CURRENT_USER_ID);
+		console.log(userNFTIds);
+		setOwnedGallery(<Gallery title="my NFTs" ids={userNFTIds} />);
+	}
+
+	useEffect(() => {
+		getNFTs();
+	}, []);
+
 	return (
 		<BrowserRouter>
 			<div className="app-root-1">
@@ -41,9 +55,7 @@ function Header() {
 				<Route path="/minter">
 					<Minter />
 				</Route>
-				<Route path="/collection">
-					<Gallery title="my NFTs" />
-				</Route>
+				<Route path="/collection">{userOwnedGallery}</Route>
 			</Switch>
 		</BrowserRouter>
 	);
