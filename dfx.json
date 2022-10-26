@@ -1,7 +1,7 @@
 {
   "canisters": {
     "nft": {
-      "main": "src/NFT/nft.mo",
+      "main": "src/nft/nft.mo",
       "type": "motoko"
     },
     "openD_backend": {
