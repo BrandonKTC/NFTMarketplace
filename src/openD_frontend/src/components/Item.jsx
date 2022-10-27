@@ -3,6 +3,7 @@ import logo from "../../assets/logo.png";
 import { idlFactory } from "../../../declarations/nft";
 import { Principal } from "@dfinity/principal";
 import { openD_backend } from "../../../declarations/openD_backend";
+import { idlFactory as tokenIdlFactory } from "../../../declarations/token_backend";
 import { HttpAgent, Actor } from "@dfinity/agent";
 import Button from "./Button";
 import Loader from "./Loader";
@@ -19,6 +20,7 @@ function Item(props) {
 	const [blur, setBlur] = useState();
 	const [sellStatus, setSellStatus] = useState("");
 	const [priceLabel, setPriceLabel] = useState();
+	const [shouldDisplay, setDisplay] = useState(true);
 
 	const id = props.id;
 
@@ -57,9 +59,9 @@ function Item(props) {
 			}
 		} else if (props.role == "discover") {
 			const originalOwner = openD_backend.getOriginalOwner(props.id);
-			originalOwner != CURRENT_USER_ID &&
+			if (originalOwner != CURRENT_USER_ID) {
 				setButton(<Button handleClick={handleBuy} text={"Buy"} />);
-
+			}
 			const price = await openD_backend.getListedNFTPrice(props.id);
 			setPriceLabel(<PriceLabel sellPrice={price.toString()} />);
 		}
@@ -67,6 +69,28 @@ function Item(props) {
 
 	async function handleBuy() {
 		console.log("buy was triggered");
+		setLoaderHidden(false);
+		const tokenActor = await Actor.createActor(tokenIdlFactory, {
+			agent,
+			canisterId: Principal.fromText("rdmx6-jaaa-aaaaa-aaadq-cai"),
+		});
+
+		const sellerId = await openD_backend.getOriginalOwner(props.id);
+		const itemPrice = await openD_backend.getListedNFTPrice(props.id);
+
+		const result = await tokenActor.transfer(sellerId, itemPrice);
+		console.log(result);
+
+		if (result == "success") {
+			const transferResult = await openD_backend.completePurchase(
+				props.id,
+				sellerId,
+				CURRENT_USER_ID
+			);
+			console.log("purchase: " + transferResult);
+			setLoaderHidden(true);
+			setDisplay(false);
+		}
 	}
 
 	let price;
@@ -109,7 +133,10 @@ function Item(props) {
 	}, []);
 
 	return (
-		<div className="disGrid-item">
+		<div
+			style={{ display: shouldDisplay ? "inline" : "none" }}
+			className="disGrid-item"
+		>
 			<div className="disPaper-root disCard-root makeStyles-root-17 disPaper-elevation1 disPaper-rounded">
 				<img
 					className="disCardMedia-root makeStyles-image-19 disCardMedia-media disCardMedia-img"
