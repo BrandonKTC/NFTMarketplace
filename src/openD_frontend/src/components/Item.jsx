@@ -6,6 +6,8 @@ import { openD_backend } from "../../../declarations/openD_backend";
 import { HttpAgent, Actor } from "@dfinity/agent";
 import Button from "./Button";
 import Loader from "./Loader";
+import CURRENT_USER_ID from "../index";
+import PriceLabel from "./PriceLabel";
 
 function Item(props) {
 	const [name, setName] = useState();
@@ -16,6 +18,7 @@ function Item(props) {
 	const [loaderHidden, setLoaderHidden] = useState(true);
 	const [blur, setBlur] = useState();
 	const [sellStatus, setSellStatus] = useState("");
+	const [priceLabel, setPriceLabel] = useState();
 
 	const id = props.id;
 
@@ -42,15 +45,28 @@ function Item(props) {
 		setOwner(owner.toText());
 		setImage(image);
 
-		const nftIsListed = await openD_backend.isListed(props.id);
+		if (props.role == "collection") {
+			const nftIsListed = await openD_backend.isListed(props.id);
 
-		if (nftIsListed) {
-			setOwner("OpenD");
-			setBlur({ filter: "blur(4px)" });
-			setSellStatus("Listed");
-		} else {
-			setButton(<Button handleClick={handleSell} text={"Sell"} />);
+			if (nftIsListed) {
+				setOwner("OpenD");
+				setBlur({ filter: "blur(4px)" });
+				setSellStatus("Listed");
+			} else {
+				setButton(<Button handleClick={handleSell} text={"Sell"} />);
+			}
+		} else if (props.role == "discover") {
+			const originalOwner = openD_backend.getOriginalOwner(props.id);
+			originalOwner != CURRENT_USER_ID &&
+				setButton(<Button handleClick={handleBuy} text={"Buy"} />);
+
+			const price = await openD_backend.getListedNFTPrice(props.id);
+			setPriceLabel(<PriceLabel sellPrice={price.toString()} />);
 		}
+	}
+
+	async function handleBuy() {
+		console.log("buy was triggered");
 	}
 
 	let price;
@@ -102,6 +118,7 @@ function Item(props) {
 				/>
 				<Loader hidden={loaderHidden} />
 				<div className="disCardContent-root">
+					{priceLabel}
 					<h2 className="disTypography-root makeStyles-bodyText-24 disTypography-h5 disTypography-gutterBottom">
 						{name}
 						<span className="purple-text"> {sellStatus}</span>
